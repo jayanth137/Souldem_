@@ -4,15 +4,18 @@ const axios = require('axios');
 const FormData = require('form-data');
 const fs = require('fs');
 const router = express.Router();
+const CID = require('../model/CID');
 
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
+
+const JWT = process.env.PINATA_JWT;
 
 // Endpoint to upload data to IPFS
 router.post('/', async (req, res) => {
   try {
     const formData = new FormData();
-    const file = fs.createReadStream('../jayHello.txt');
+    const file = fs.createReadStream('./jayHello.txt');
     formData.append('file', file);
     formData.append(
       'pinataMetadata',
@@ -41,8 +44,6 @@ router.post('/', async (req, res) => {
     });
     console.log('Request FormData:', formData);
 
-    const JWT = process.env.PINATA_JWT;
-
     const uploadRes = await axios.post(
       'https://api.pinata.cloud/pinning/pinFileToIPFS',
       formData,
@@ -54,12 +55,10 @@ router.post('/', async (req, res) => {
       }
     );
 
-    const cid = await prisma.cid.create({
-      data: {
-        cid: uploadRes.data.IpfsHash,
-      },
-    });
-    console.log(cid);
+    console.log('Response:', uploadRes.data);
+    // Save CID to MongoDB
+    const newCID = new CID({ cid: uploadRes.data.IpfsHash });
+    await newCID.save();
 
     res.json({ cid: uploadRes.data.IpfsHash });
   } catch (error) {
@@ -72,3 +71,14 @@ router.post('/', async (req, res) => {
 });
 
 module.exports = router;
+
+// console.log(prisma); // Ensure this logs the Prisma client instance
+
+// const cid = await prisma.cid.create({
+//   data: {
+//     cid: uploadRes.data.IpfsHash,
+//   },
+// });
+// console.log(cid);
+
+// res.json({ cid: uploadRes.data.IpfsHash });

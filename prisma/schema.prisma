@@ -14,21 +14,28 @@ datasource db {
 }
 
 
+// src/db/schema.prisma
 
+// Define your database tables and relationships here
 model Proposal {
-  id       String    @id @default(auto()) @map("_id") @db.ObjectId
-  cid     String    @unique
+  id          Int      
+  title       String
+  description String
+  createdAt   DateTime  @default(now())
+  votes       Vote[]
 }
 
-model Votes {
-  id      String   @id @default(auto()) @map("_id") @db.ObjectId
-  cid    String   @unique
-  
+model Vote {
+  id         Int    
+  userId     Int
+  proposalId Int
+  proposal   Proposal @relation(fields: [proposalId], references: [id])
 }
 
-model Signatures {
-  id      String @id @default(auto()) @map("_id") @db.ObjectId
-  cid    String @unique
+model Signature {
+  id         Int     
+  userId     Int
+
 }
 
 

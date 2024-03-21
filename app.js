@@ -1,12 +1,12 @@
 const express = require('express');
 const axios = require('axios');
 require('dotenv').config();
+const connectDB = require('./config/db');
 
-const proposalRoutes = require('./routes/proposals.js');
 const voteRoutes = require('./routes/votes.js');
-const signatureRoutes = require('./routes/signatures.js');
+const proposalRoutes = require('./routes/proposals.js');
 
-const JWT = process.env.PINATA_JWT;
+connectDB();
 
 const FormData = require('form-data');
 const fs = require('fs');
@@ -15,7 +15,6 @@ const app = express();
 
 app.use('/proposals', proposalRoutes);
 app.use('/votes', voteRoutes);
-app.use('/signatures', signatureRoutes);
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
