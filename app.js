@@ -5,6 +5,7 @@ const connectDB = require('./config/db');
 
 const voteRoutes = require('./routes/votes.js');
 const proposalRoutes = require('./routes/proposals.js');
+const marksheetRoutes = require('./routes/marksheet');
 
 connectDB();
 
@@ -12,7 +13,9 @@ const FormData = require('form-data');
 const fs = require('fs');
 
 const app = express();
+app.use(express.json());
 
+app.use('/marksheets', marksheetRoutes);
 app.use('/proposals', proposalRoutes);
 app.use('/votes', voteRoutes);
 
