@@ -1,33 +1,48 @@
 // routes/voteRoutes.js
 const express = require('express');
 const router = express.Router();
-const Vote = require('../model/Vote');
-// const IPFS = require('../config/ipfs'); // Assuming you have a module to interact with IPFS
+const axios = require('axios');
+const FormData = require('form-data');
+const fs = require('fs');
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
+const JWT = process.env.PINATA_JWT;
 
-// Endpoint to store votes for a proposal in IPFS
-router.post('/:proposalId', async (req, res) => {
+router.post('/', async (req, res) => {
   try {
-    const { proposalId } = req.params;
-    const { votedBy, isApproved } = req.body;
+    const voteArray = req.body.votes; // Assuming the request body contains a field named "votes" which is an array of vote objects
+    const voteDataArray = voteArray.map((vote) => ({
+      voterName: vote.voterName,
+      vote: vote.vote,
+      signature: vote.signature,
+      proposalCID: vote.proposalCID,
+    }));
+    // Upload JSON data to IPFS
+    const uploadRes = await axios.post(
+      'https://api.pinata.cloud/pinning/pinJSONToIPFS',
+      voteDataArray,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${JWT}`,
+        },
+      }
+    );
 
-    // Save vote to MongoDB
-    const vote = await Vote.create({
-      proposalId,
-      votedBy,
-      isApproved,
+    console.log('Response:', uploadRes.data);
+
+    // Save CID to Prisma database
+    const savedCID = await prisma.voteCID.create({
+      data: {
+        CID: uploadRes.data.IpfsHash,
+      },
     });
 
-    // Fetch votes associated with the proposal from MongoDB
-    const votes = await Vote.find({ proposalId });
-
-    // Save votes data to IPFS
-    const ipfsHash = await IPFS.saveVotesToIPFS(votes); // Assuming you have a method to save data to IPFS
-
-    res.json({ ipfsHash });
+    // Send response
+    res.json({ cid: uploadRes.data.IpfsHash });
   } catch (error) {
-    console.error('Error storing votes for proposal in IPFS:', error);
+    console.error('Error uploading JSON data to IPFS:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
-
 module.exports = router;

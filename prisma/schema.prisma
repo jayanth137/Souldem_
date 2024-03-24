@@ -13,27 +13,51 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 // src/db/schema.prisma
 
+model Proposal {
+  id String @id @default(uuid()) @map("_id")
+  // Other fields in your Proposal model
 
+  // Reference to ProposalCID
+  proposalCID   ProposalCID? @relation(fields: [proposalCIDId], references: [id])
+  proposalCIDId String?
+
+  // Reference to VoteCID
+  voteCID   VoteCID? @relation(fields: [voteCIDId], references: [id])
+  voteCIDId String?
+
+  closingTime DateTime?
+}
+
+model ProposalCID {
+  id       String     @id @default(uuid()) @map("_id")
+  CID      String
+  Proposal Proposal[]
+}
+
+model VoteCID {
+  id       String     @id @default(uuid()) @map("_id")
+  CID      String
+  Proposal Proposal[]
+}
 
 model Marksheet {
- id          String   @id @default(uuid( )) @map("_id")
- studentName String
- rollNumber String   @unique
- marks       Mark[]
- totalMarks Int
- obtainedMarks Int
- percentage Float
+  id            String @id @default(uuid()) @map("_id")
+  studentName   String
+  rollNumber    String @unique
+  marks         Mark[]
+  totalMarks    Int
+  obtainedMarks Int
+  percentage    Float
 }
 
 model Mark {
- id            String   @id @default(uuid())@map("_id")
- subject       String
- internalMarks Int
- externalMarks Int
- grade         String
- marksheetId   String
- marksheet     Marksheet @relation(fields: [marksheetId], references: [id])
+  id            String    @id @default(uuid()) @map("_id")
+  subject       String
+  internalMarks Int
+  externalMarks Int
+  grade         String
+  marksheetId   String
+  marksheet     Marksheet @relation(fields: [marksheetId], references: [id])
 }

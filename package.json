@@ -15,6 +15,7 @@
     "@helia/unixfs": "^3.0.2",
     "@prisma/client": "^5.11.0",
     "@spheron/browser-upload": "^2.0.1",
+    "@web-std/file": "^3.0.3",
     "@web3-storage/w3up-client": "^12.4.1",
     "dotenv": "^16.4.5",
     "express": "^4.19.0",
@@ -27,6 +28,9 @@
     "npm": "^10.5.0"
   },
   "devDependencies": {
+    "@babel/cli": "^7.24.1",
+    "@babel/core": "^7.24.3",
+    "@babel/preset-env": "^7.24.3",
     "@types/node": "^20.11.30",
     "prisma": "^5.11.0",
     "ts-node": "^10.9.2",
