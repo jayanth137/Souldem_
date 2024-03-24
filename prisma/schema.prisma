@@ -16,26 +16,24 @@ datasource db {
 
 // src/db/schema.prisma
 
-// Define your database tables and relationships here
-model Proposal {
-  id          Int      
-  title       String
-  description String
-  createdAt   DateTime  @default(now())
-  votes       Vote[]
+
+
+model Marksheet {
+ id          String   @id @default(uuid( )) @map("_id")
+ studentName String
+ rollNumber String   @unique
+ marks       Mark[]
+ totalMarks Int
+ obtainedMarks Int
+ percentage Float
 }
 
-model Vote {
-  id         Int    
-  userId     Int
-  proposalId Int
-  proposal   Proposal @relation(fields: [proposalId], references: [id])
+model Mark {
+ id            String   @id @default(uuid())@map("_id")
+ subject       String
+ internalMarks Int
+ externalMarks Int
+ grade         String
+ marksheetId   String
+ marksheet     Marksheet @relation(fields: [marksheetId], references: [id])
 }
-
-model Signature {
-  id         Int     
-  userId     Int
-
-}
-
-
